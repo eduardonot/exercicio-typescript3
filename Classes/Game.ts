@@ -34,11 +34,7 @@ export class Game {
   private async checkTime (gameTime: number) {
     gameTime = gameTime - this.usedSeconds * 1000
     let timerCountdown = new Date(gameTime)
-    const hours = timerCountdown.getHours() < 10 ? '0' + timerCountdown.getHours() : timerCountdown.getHours()
-    const minutes = timerCountdown.getMinutes() < 10 ? '0' + timerCountdown.getMinutes() : timerCountdown.getMinutes()
-    const getSeconds = timerCountdown.getSeconds() < 10 ? '0' + timerCountdown.getSeconds() : timerCountdown.getSeconds()
     if(timerCountdown > new Date()) {
-      await this.sendMessage(`Com o tempo que usou, agora você tem até ${hours}:${minutes}:${getSeconds} para finalizar o jogo`)
       return true
     } else {
       await this.sendMessage('Seu tempo acabou. Você não salvou o mundo.')
@@ -49,6 +45,7 @@ export class Game {
   // PRIMEIRA ETAPA
   private async sceneOne () {
     const self = this
+    await this.checkTime(this.timeStarted)
     async function askSceneTwo () {
       await self.sendMessage('Gostaria de rodar este fragmento novamente?')
       rl.question('S/N: ', async (resp) => {
@@ -123,7 +120,7 @@ export class Game {
       })
     }
     await this.sendMessage('Navegando na Deep Web você descobriu um Fórum onde usuários postaram uma charada que, quando solucionada, se revelará como uma URL. Selecione o post de um dos seguintes usuários:')
-    rl.question('A) Usuário Tablet\nB) Usuário 9Dedos\nC) Solnobaro\nD) Ciríssimo\n\nDigite a Letra desejada: ', async (value: string) => {
+    rl.question('A) Usuário Tablet\nB) Usuário 9Dedos\nC) Usuário Solnobaro\nD) Usuário Ciríssimo\n\nDigite a Letra desejada: ', async (value: string) => {
       switch (value.toLocaleLowerCase()) {
         case 'a':
           console.clear()
@@ -162,22 +159,42 @@ export class Game {
     const self = this
     await this.sendMessage('Essa é a etapa final. É o momento que separa os meninos dos homens. Será que é capaz de mostrar que decifrou esse quebra-cabeças?')
     await this.sendMessage('Cada erro que cometer agora, lhe custarão 10 segundos do tempo restante. Espero que tenha printado a tela, o momento derradeiro chegou!')
-    async function makeFinalQuestion () {
+    async function makeQuestion () {
       self.usedSeconds = self.usedSeconds + 10
       await self.checkTime(self.timeStarted)
-      await self.sendMessage('Digite o código que salvará a humanidade.')
-      rl.question('Digite: ', async (value: string) => {
+      await self.sendMessage('Você agora tem 3 opções:\n')
+      rl.question('1) - Retornar ao primeiro fragmento\n2) - Retornar ao segundo fragmento\n3) - Digitar o código:\n\nDigite a opção desejada: ', async (value: string) => {
         switch (value.toLocaleLowerCase()) {
-          case `fetch('wearetheworld.com').then(response => { return response })`:
-            await self.win()
+          case '1':
+            await self.sendMessage('Você optou por retornar ao início')
+            await self.sceneOne()
+            return
+          case '2':
+            await self.sendMessage('Você optou por retornar ao fragmento anterior')
+            await self.sceneTwo()
+            return
+          case '3':
+            await self.sendMessage('Você optou por digitar o código que salvará a humanidade. Cada erro lhe custarão 10 segundos')
+            rl.question('Digite o código: ', async (resp) => {
+              switch (resp) {
+                case `fetch('wearetheworld.com').then(response => { return response })`:
+                  await self.checkTime(self.timeStarted)
+                  await self.win()
+                  return
+                default:
+                  await self.sendMessage('Você errou.')
+                  return makeQuestion()
+              }
+            })
             return
           default:
-            return makeFinalQuestion()
+            await self.sendMessage('Parece que você selecionou uma opção inválida. A destruição do planeta é iminente!')
+            self.gameOver()
+            return
         }
       })
     }
-
-    makeFinalQuestion()
+    makeQuestion()
   }  
 
   async play () {
@@ -189,7 +206,7 @@ export class Game {
     const getSeconds = gameTimer.getSeconds() < 10 ? '0' + gameTimer.getSeconds() : gameTimer.getSeconds()
     await this.sendMessage(`Olá, ${this.name}, seja bem-vindo ao Coders Game!\nVocê tem até ${hours}:${minutes}:${getSeconds} para finalizar o jogo`)
     await this.sendMessage('Você precisa conseguir uma informação de uma API pública para salvar o mundo.')
-    await this.sendMessage('Estas informações estão divididas em fragmentos que se encontram em diversos sites.\nPrintar a tela será fundamental em determinada etapa do jogo.')
+    await this.sendMessage('Estas informações estão divididas em fragmentos que se encontram em diversos sites.\nPrintar a tela poderá ser fundamental para o seu sucesso.')
     await this.sendMessage('Sua conexão com a internet é muito lenta. Ao abrir um site, 10 segundos lhe serão tomados. Use o tempo ao seu favor')
     await this.sendMessage(`Repetindo, você precisa terminar até às ${hours}:${minutes}:${getSeconds}.`)
     await this.sendMessage('Que o jogo comece!')
@@ -204,8 +221,8 @@ export class Game {
   }
 
   async win() {
-    await this.sendMessage('Parabéns, você salvou o mundo de uma catástrofe sem precedentes!\nSeu nome ecoará por toda a história por este feito.\n\nVocê não ganhou nenhuma recompensa.')
-    await this.sendMessage('Fim.')
+    await this.sendMessage('Parabéns, você salvou o mundo de uma catástrofe sem precedentes!\nSeu nome ecoará por toda a história por este feito.\n\nVocê ganhou uma recompensa.')
+    await this.sendMessage('https://www.youtube.com/watch?v=s3wNuru4U0I')
     process.exit(0)
   }
 }
