@@ -2,6 +2,7 @@ import mockDatabase from './../database/mockDatabase'
 import sendMessage from './../utils/sendMessage'
 import * as readline from 'readline'
 import * as process from 'process'
+import open from 'open'
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -40,8 +41,8 @@ export class Game {
             await self.sceneTwo()
             return
           default:
-            await sendMessage('Parece que você selecionou uma opção inválida. A destruição do planeta é iminente!')
-            self.gameOver()
+            await sendMessage('Parece que você selecionou uma opção inválida. Vou perguntar novamente...')
+            askSceneTwo()
             return
         }
       })
@@ -74,8 +75,8 @@ export class Game {
           await askSceneTwo()
           return
         default:
-          await sendMessage('Parece que você selecionou uma opção inválida. A destruição do planeta é iminente!')
-          self.gameOver()
+          await sendMessage('Parece que você selecionou uma opção inválida. Vou perguntar novamente!')
+          self.sceneOne()
           return
       }
     })
@@ -96,8 +97,8 @@ export class Game {
             await self.finalScene()
             return
           default:
-            await sendMessage('Parece que você selecionou uma opção inválida. A destruição do planeta é iminente!')
-            self.gameOver()
+            await sendMessage('Parece que você selecionou uma opção inválida. Vou perguntar novamente...')
+            askFinalScene()
             return
         }
       })
@@ -130,8 +131,8 @@ export class Game {
           await askFinalScene()
           return
         default:
-          await sendMessage('Parece que você selecionou uma opção inválida. A destruição do planeta é iminente!')
-          self.gameOver()
+          await sendMessage('Parece que você selecionou uma opção inválida. Vou perguntar novamente...')
+          self.sceneTwo()
           return
       }
     })
@@ -171,8 +172,8 @@ export class Game {
             })
             return
           default:
-            await sendMessage('Parece que você selecionou uma opção inválida. A destruição do planeta é iminente!')
-            self.gameOver()
+            await sendMessage('Parece que você selecionou uma opção inválida. Vou perguntar novamente...')
+            makeQuestion()
             return
         }
       })
@@ -206,6 +207,7 @@ export class Game {
   async win() {
     await sendMessage('Parabéns, você salvou o mundo de uma catástrofe sem precedentes!\nSeu nome ecoará por toda a história por este feito.\n\nVocê ganhou uma recompensa.')
     await sendMessage('https://www.youtube.com/watch?v=s3wNuru4U0I')
+    await open('https://www.youtube.com/watch?v=s3wNuru4U0I')
     process.exit(0)
   }
 }

@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/eduardonot/exercicio-typescript3#readme",
   "dependencies": {
-    "@types/node": "^18.8.1"
+    "@types/node": "^18.8.1",
+    "open": "^8.4.0"
   }
 }
